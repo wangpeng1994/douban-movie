@@ -129,7 +129,7 @@ var top250 = {
     this.isLoading = true
     this.$element.find('.loading').show()
     $.ajax({
-      url:'http://api.douban.com/v2/movie/top250',
+      url:'https://api.douban.com/v2/movie/top250',
       data: {
         start: self.index || 0,
         count: 20
