@@ -96,6 +96,10 @@ function render(data){
 
 */
 
+
+
+/*     top250    */
+
 var top250 = {
   init: function(){
     this.$element = $('#top250')
@@ -108,9 +112,7 @@ var top250 = {
 
   bind: function(){
     var self = this
-    console.log(this.$element)
     this.$element.on('scroll', function(){
-      console.log('gundong.....')
       if(self.isEnd) return //250条数据已经展示到底部了
       if(self.isToBottom()) self.start()
     })
@@ -131,7 +133,7 @@ var top250 = {
     $.ajax({
       url:'http://api.douban.com/v2/movie/top250',
       data: {
-        start: self.index || 0,
+        start: this.index || 0,
         count: 20
       },
       dataType: 'jsonp'
@@ -158,7 +160,7 @@ var top250 = {
         <div class="item">
           <a href="">
             <div class="cover">
-              <img src="http://img7.doubanio.com/view/photo/s_ratio_poster/public/p1910813120.jpg" alt="">
+              <img src="" alt="">
             </div>
             <div class="detail">
               <h2></h2>
@@ -204,28 +206,194 @@ var top250 = {
 
 
 
-var usZone = {
+/*  北美排行榜   */
+
+var usBox = {
   init: function(){
-    console.log('usZone ok')
+    this.$element = $('#usBox')
+    this.start()
   },
-  bind: function(){
 
-  },
   start: function(){
+    var self = this
+    this.getData(function(data){
+      self.render(data)
+    })
+  },
 
+  getData: function(callback){
+    var self = this
+    this.$element.find('.loading').show()
+    $.ajax({
+      url:'http://api.douban.com/v2/movie/us_box',
+      dataType: 'jsonp'
+    }).done(function(ret){
+      console.log(ret)
+      callback && callback(ret)
+    }).fail(function(){
+      console.log('请求数据异常')
+    }).always(function(){
+      self.$element.find('.loading').hide()
+    })
+  },
+
+  render: function(data){
+    var self = this
+    data.subjects.forEach(function(movie){
+      var movie = movie.subject
+      var tpl = `
+        <div class="item">
+          <a href="">
+            <div class="cover">
+              <img src="" alt="">
+            </div>
+            <div class="detail">
+              <h2></h2>
+              <div class="rest"><span class="rating"></span>分 / <span class="collect"></span>收藏</div>
+              <div class="rest"><span class="year"></span> / <span class="tyle"></span></div>
+              <div class="rest">导演: <span class="directors"></span></div>
+              <div class="rest">主演：<span class="casts"></span></div>
+            </div>
+          </a>
+        </div>
+      `
+      var $node = $(tpl)
+      $node.children('a').attr('href', movie.alt)
+      $node.find('.cover img').attr('src', movie.images.small)
+      $node.find('.detail h2').text(movie.title)
+      $node.find('.rating').text(movie.rating.average)
+      $node.find('.collect').text(movie.collect_count)
+      $node.find('.year').text(movie.year)
+      $node.find('.tyle').text(movie.genres.join(' / '))
+      $node.find('.directors').text(function(){
+        var directorsArr = []
+        movie.directors.forEach(function(item){
+          directorsArr.push(item.name)
+        })
+        return directorsArr.join('、')
+      })
+      $node.find('.casts').text(function(){
+        var castsArr = []
+        movie.casts.forEach(function(item){
+          castsArr.push(item.name)
+        })
+        return castsArr.join('、')
+      })
+      self.$element.find('.container').append($node)
+    })
   }
 }
 
 
+
+/*   电影搜索   */
+
 var search = {
   init: function(){
-    console.log('search ok')
+    this.$element = $('#search')
+    this.isLoading = false
+    this.index = 0
+    this.isEnd = false
+    this.keyword = ''
+    this.bind()
   },
+
   bind: function(){
-
+    var self = this
+    this.$element.find('.button').on('click', function(){
+      self.$element.find('.container').children().remove()
+      self.keyword = self.$element.find('input').val()
+      self.start()
+    })
+    this.$element.on('scroll', function(){
+      if(self.isEnd) return
+      if(self.isToBottom()) self.start()
+    })
   },
-  start: function(){
 
+  start: function(){
+    var self = this
+    this.getData(function(data){
+      self.render(data)
+    })
+  },
+
+  getData: function(callback){
+    var self = this
+    if(this.isLoading) return
+    this.isLoading = true
+    this.$element.find('.loading').show()
+    $.ajax({
+      url:'http://api.douban.com/v2/movie/search',
+      data: {
+        q: this.keyword,
+        start: this.index || 0,
+        count: 20
+      },
+      dataType: 'jsonp'
+    }).done(function(ret){
+      console.log(ret)
+      self.index += 20
+      if(self.index >= ret.total){
+        self.isEnd = true
+        console.log('没有更多数据了')
+      }
+      callback && callback(ret)
+    }).fail(function(){
+      console.log('请求数据异常')
+    }).always(function(){
+      self.isLoading = false
+      self.$element.find('.loading').hide()
+    })
+  },
+
+  render: function(data){
+    var self = this
+    data.subjects.forEach(function(movie){
+      var tpl = `
+        <div class="item">
+          <a href="">
+            <div class="cover">
+              <img src="" alt="">
+            </div>
+            <div class="detail">
+              <h2></h2>
+              <div class="rest"><span class="rating"></span>分 / <span class="collect"></span>收藏</div>
+              <div class="rest"><span class="year"></span> / <span class="tyle"></span></div>
+              <div class="rest">导演: <span class="directors"></span></div>
+              <div class="rest">主演：<span class="casts"></span></div>
+            </div>
+          </a>
+        </div>
+      `
+      var $node = $(tpl)
+      $node.children('a').attr('href', movie.alt)
+      $node.find('.cover img').attr('src', movie.images.small)
+      $node.find('.detail h2').text(movie.title)
+      $node.find('.rating').text(movie.rating.average)
+      $node.find('.collect').text(movie.collect_count)
+      $node.find('.year').text(movie.year)
+      $node.find('.tyle').text(movie.genres.join(' / '))
+      $node.find('.directors').text(function(){
+        var directorsArr = []
+        movie.directors.forEach(function(item){
+          directorsArr.push(item.name)
+        })
+        return directorsArr.join('、')
+      })
+      $node.find('.casts').text(function(){
+        var castsArr = []
+        movie.casts.forEach(function(item){
+          castsArr.push(item.name)
+        })
+        return castsArr.join('、')
+      })
+      self.$element.find('.search-result').append($node)
+    })
+  },
+
+  isToBottom: function(){
+    return this.$element.find('.search-result').height() - 10 <= this.$element.scrollTop() + this.$element.height()
   }
 }
 
@@ -236,21 +404,22 @@ var search = {
 
 var app = {
   init: function(){
-    this.$tabs = $('footer>div')
-    this.$panels = $('section')
     this.bind()
 
     top250.init()
-    usZone.init()
+    usBox.init()
     search.init()
   },
   bind: function(){
     var self = this
-    this.$tabs.on('click', function(){
+    $('footer>div').on('click', function(){
       $(this).addClass('active').siblings().removeClass('active')
-      self.$panels.hide().eq($(this).index()).fadeIn()
+      $('main>section').hide().eq($(this).index()).fadeIn()
     })
   }
 }
 
 app.init()
+
+
+//点击进入详情页事，修改hash， 回来时会刷新，再根据hash 切换回此前页面
