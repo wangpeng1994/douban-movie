@@ -192,6 +192,11 @@ define('com/search',['jquery', 'com/helper'], function($, helper){
         self.keyword = self.$input.val()
         self.start()
       })
+      this.$input.on('keypress', function(e){
+        if(e.keyCode === 13){
+          self.$btn.trigger('click')
+        }
+      })
       this.$element.on('scroll', function(){
         if(!self.isEnd && helper.isToBottom(self.$content, self.$element)){
           self.start()
