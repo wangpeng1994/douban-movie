@@ -9,23 +9,24 @@ a {
   color: #333;
 }
 
-html, body { height: 100%; }
+html, body, main { 
+  height: 100%;
+  position: relative;
+ }
 
 body {
-  position: relative;
   font-size: 12px;
   line-height: 1.2;
-  background: #fff;
 }
 
-
-main { height: calc(100vh - 50px); }
-
 main > section {
+  display: none;
+  height: calc(100% - 50px);
+  padding: 10px;
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
-  display: none;
-  height: 100%;
+  background: #fff;
+
 }
 
 main > section:first-child { display: block; }
@@ -43,6 +44,7 @@ footer {
 footer > div {
   flex: 1;
   text-align: center;
+  cursor: pointer;
 }
 
 footer .active { color: #ff5722; }
@@ -57,7 +59,7 @@ footer > div > span {
 
 .item {
   padding: 10px 0;
-  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
 }
 
 .item > a { display: flex; }
@@ -94,3 +96,30 @@ footer > div > span {
 }
 
 
+/*    search    */
+
+section .search-area {
+  position: relative;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  color: #333;
+}
+
+section .search-area input {
+  width: calc(100% - 50px);
+  padding: 8px;
+  border: none;
+  border-radius: 2px;
+  background-color: #eee;
+  outline: none;
+}
+
+section .search-area .button {
+  position: absolute;
+  right: 0;
+  padding: 8px 10px;
+  border-radius: 2px;
+  background-color: #ff5722;
+  color: #fff;
+  cursor: pointer;
+}
