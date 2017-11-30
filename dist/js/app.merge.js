@@ -148,7 +148,7 @@ define('com/usbox',['jquery', 'com/helper'], function($, helper){
       var self = this
       this.$element.find('.loading').show()
       $.ajax({
-        url:'http://api.douban.com/v2/movie/us_box',
+        url:'https://api.douban.com/v2/movie/us_box',
         dataType: 'jsonp'
       }).done(function(ret){
         console.log(ret)
@@ -212,7 +212,7 @@ define('com/search',['jquery', 'com/helper'], function($, helper){
       this.isLoading = true
       this.$element.find('.loading').show()
       $.ajax({
-        url:'http://api.douban.com/v2/movie/search',
+        url:'https://api.douban.com/v2/movie/search',
         data: {
           q: this.keyword,
           start: this.index || 0,

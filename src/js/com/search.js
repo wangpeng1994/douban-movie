@@ -40,7 +40,7 @@ define(['jquery', 'com/helper'], function($, helper){
       this.isLoading = true
       this.$element.find('.loading').show()
       $.ajax({
-        url:'http://api.douban.com/v2/movie/search',
+        url:'https://api.douban.com/v2/movie/search',
         data: {
           q: this.keyword,
           start: this.index || 0,
